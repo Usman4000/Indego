@@ -1,6 +1,7 @@
 import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import axios from 'axios'; // Import axios
 import { PrismaService } from './prisma/prisma.service';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class AppService {
@@ -10,8 +11,11 @@ export class AppService {
     return 'Hello World!';
   }
 
+ @Cron('0 10 * * * *') // every hour, at the start of the 10th minute
 async triggerSaveSnapshot(): Promise<void> {
-    try {
+   try {
+      console.log('Cron check....');
+      
       const response = await axios.get('https://bts-status.bicycletransit.workers.dev/phl'); // Fetch snapshot data
       const snapshotData = response.data; // Assuming the response data is structured correctly
 

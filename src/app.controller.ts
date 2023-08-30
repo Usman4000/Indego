@@ -25,5 +25,19 @@ export class AppController {
     return this.appService.getStationsAtSpecificTime(timestamp);
   }
 
+    @Get('api/v1/stations/:kioskId')
+  getSpecificStationAtSpecificTime(
+    @Query('kioskId') kioskId: string,
+    @Query('at') timestamp: string,
+  ) {
+    try {
+      const result = this.appService.getSpecificStationAtSpecificTime(kioskId, timestamp);
+      return result;
+
+    } catch (error) {
+      
+      throw new HttpException('Forbidden', 404);
+    }
+
 
 }

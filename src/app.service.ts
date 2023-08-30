@@ -110,6 +110,25 @@ async triggerSaveSnapshot(): Promise<void> {
     }
   }
 
+    async getSpecificStationAtSpecificTime(kioskId: string, timestamp: string) {
+    // Convert the timestamp to the appropriate format if needed
+    try {
+      const station = await this.prisma.station.findFirst({
+        where: {
+          AND: [ { kioskId: parseInt(kioskId) }, { timestamp: timestamp } ]
+        }
+      });
+      if (!station) {
+        throw new NotFoundException();
+      }
+
+      return station;
+    } catch (error) {
+      throw new NotFoundException(error.message, error.statusCode);
+    }
+  }
+
+
 
 
 }

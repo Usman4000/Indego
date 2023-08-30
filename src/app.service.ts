@@ -6,4 +6,93 @@ import { PrismaService } from './prisma/prisma.service';
 export class AppService {
   constructor(private readonly prisma: PrismaService) { }
 
+  getHello(): string {
+    return 'Hello World!';
+  }
+
+async triggerSaveSnapshot(): Promise<void> {
+    try {
+      const response = await axios.get('https://bts-status.bicycletransit.workers.dev/phl'); // Fetch snapshot data
+      const snapshotData = response.data; // Assuming the response data is structured correctly
+
+      if (snapshotData && Array.isArray(snapshotData.features)) {
+        await this.saveSnapshot(snapshotData.features); // Pass the features array to saveSnapshot
+      } else {
+        throw new Error('Invalid response data format');
+      }
+    } catch (error) {
+      throw new Error('Failed to trigger snapshot save.');
+    }
+  }
+
+  private async saveSnapshot(features: any[]): Promise<void> {
+    try {
+      // Iterate through the features array and perform your data transformation and saving logic
+      for (const feature of features) {
+        await this.saveFeature(feature);
+      }
+    } catch (error) {
+      throw new Error('Failed to save snapshot.');
+    }
+  }
+
+  private async saveFeature(snapshotData: any): Promise<void> {
+    try {
+      if (!snapshotData.properties || !snapshotData.properties.bikes) {
+        console.error('Invalid snapshotData format:', snapshotData);
+        return;
+      }
+
+      const stationData = {
+        name: snapshotData.properties.name,
+        totalDocks: snapshotData.properties.totalDocks,
+        docksAvailable: snapshotData.properties.docksAvailable,
+        bikesAvailable: snapshotData.properties.bikesAvailable,
+        classicBikesAvailable: snapshotData.properties.classicBikesAvailable,
+        smartBikesAvailable: snapshotData.properties.smartBikesAvailable,
+        electricBikesAvailable: snapshotData.properties.electricBikesAvailable,
+        rewardBikesAvailable: snapshotData.properties.rewardBikesAvailable,
+        rewardDocksAvailable: snapshotData.properties.rewardDocksAvailable,
+        kioskStatus: snapshotData.properties.kioskStatus,
+        kioskPublicStatus: snapshotData.properties.kioskPublicStatus,
+        kioskConnectionStatus: snapshotData.properties.kioskConnectionStatus,
+        kioskType: snapshotData.properties.kioskType,
+        addressStreet: snapshotData.properties.addressStreet,
+        addressCity: snapshotData.properties.addressCity,
+        addressState: snapshotData.properties.addressState,
+        addressZipCode: snapshotData.properties.addressZipCode,
+        closeTime: snapshotData.properties.closeTime,
+        eventEnd: snapshotData.properties.eventEnd,
+        eventStart: snapshotData.properties.eventStart,
+        isEventBased: snapshotData.properties.isEventBased,
+        isVirtual: snapshotData.properties.isVirtual,
+        kioskId: snapshotData.properties.kioskId,
+        notes: snapshotData.properties.notes,
+        openTime: snapshotData.properties.openTime,
+        publicText: snapshotData.properties.publicText,
+        timeZone: snapshotData.properties.timeZone,
+        trikesAvailable: snapshotData.properties.trikesAvailable,
+        latitude: snapshotData.properties.latitude,
+        longitude: snapshotData.properties.longitude,
+        battery: {
+          create: snapshotData.properties.bikes.map((bikeData: any) => ({
+            dockNumber: bikeData.dockNumber,
+            isElectric: bikeData.isElectric,
+            isAvailable: bikeData.isAvailable,
+            battery: bikeData.battery
+          }))
+        }
+      };
+
+      const createdStation = await this.prisma.station.create({
+        data: stationData
+      });
+
+      console.log(createdStation);
+    } catch (error) {
+      console.log(error);
+      throw new Error('Failed to save snapshot.');
+    }
+  }
+
 }

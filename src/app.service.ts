@@ -88,11 +88,28 @@ async triggerSaveSnapshot(): Promise<void> {
         data: stationData
       });
 
-      console.log(createdStation);
     } catch (error) {
-      console.log(error);
       throw new Error('Failed to save snapshot.');
     }
   }
+
+  async getStationsAtSpecificTime(timestamp: string) {
+    try {
+      const stations = await this.prisma.station.findMany({
+        where: {
+          timestamp: timestamp
+        }
+      });
+      if (stations.length ===0) {
+        throw new NotFoundException();
+      }
+
+      return stations;
+    } catch (error) {
+      throw new NotFoundException(error.message, error.statusCode);
+    }
+  }
+
+
 
 }

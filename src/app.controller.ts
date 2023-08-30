@@ -20,4 +20,10 @@ export class AppController {
     }
   }
 
+  @Get('api/v1/stations')
+  getStationsAtSpecificTime(@Query('at') timestamp: string) {
+    return this.appService.getStationsAtSpecificTime(timestamp);
+  }
+
+
 }

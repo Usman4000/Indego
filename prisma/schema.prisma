@@ -15,3 +15,49 @@ model User {
   name  String
   email String  @unique
 }
+
+model Station {
+  id                    Int      @id @default(autoincrement())
+  timestamp             DateTime @default(now()) 
+  name                  String
+  totalDocks            Int
+  docksAvailable        Int
+  bikesAvailable        Int
+  classicBikesAvailable Int
+  smartBikesAvailable   Int
+  electricBikesAvailable Int
+  rewardBikesAvailable  Int
+  rewardDocksAvailable  Int
+  kioskStatus           String
+  kioskPublicStatus     String
+  kioskConnectionStatus String
+  kioskType             Int
+  addressStreet         String
+  addressCity           String
+  addressState          String
+  addressZipCode        String
+  closeTime             String?
+  eventEnd              String?
+  eventStart            String?
+  isEventBased          Boolean
+  isVirtual             Boolean
+  kioskId               Int
+  notes                 String?
+  openTime              String?
+  publicText            String?
+  timeZone              String?
+  trikesAvailable       Int
+  latitude              Float
+  longitude             Float
+  battery           Battery[]
+}
+
+model Battery {
+  id          Int      @id @default(autoincrement())
+  dockNumber  Int
+  isElectric  Boolean
+  isAvailable Boolean
+  battery     Int?
+  stationId   Int
+  station     Station  @relation(fields: [stationId], references: [id])
+}

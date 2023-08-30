@@ -25,7 +25,7 @@ export class AppController {
     return this.appService.getStationsAtSpecificTime(timestamp);
   }
 
-    @Get('api/v1/stations/:kioskId')
+  @Get('api/v1/stations/:kioskId')
   getSpecificStationAtSpecificTime(
     @Query('kioskId') kioskId: string,
     @Query('at') timestamp: string,
@@ -36,8 +36,8 @@ export class AppController {
 
     } catch (error) {
       
-      throw new HttpException('Forbidden', 404);
+      throw new HttpException('Not found', 404);
     }
 
-
+  }
 }

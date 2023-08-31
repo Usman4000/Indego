@@ -2,10 +2,14 @@ import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import axios from 'axios'; // Import axios
 import { PrismaService } from './prisma/prisma.service';
 import { Cron } from '@nestjs/schedule';
+import { WeatherService } from './weather.service';
 
 @Injectable()
 export class AppService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly weatherService: WeatherService
+  ) { }
 
   getHello(): string {
     return 'Hello World!';
@@ -99,16 +103,21 @@ async triggerSaveSnapshot(): Promise<void> {
 
   async getStationsAtSpecificTime(timestamp: string) {
     try {
-      const stations = await this.prisma.station.findMany({
+
+      const temperaturePromise= await this.weatherService.getTemperatureByCity(process.env.CITY)
+      const stationsPromise = await this.prisma.station.findMany({
         where: {
           timestamp: timestamp
         }
       });
+    const [temperature, stations] = await Promise.all([temperaturePromise, stationsPromise]);
+
+
       if (stations.length ===0) {
         throw new NotFoundException();
       }
 
-      return stations;
+    return { at:timestamp ,temperature, stations };
     } catch (error) {
       throw new NotFoundException(error.message, error.statusCode);
     }
